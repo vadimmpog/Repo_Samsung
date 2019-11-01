@@ -17,8 +17,8 @@ public class MyView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
     Paint paint= new Paint(),paint1= new Paint();
-        paint.setColor(Color.BLUE);
-    Paint.Style Fill;
+        paint.setColor(Color.YELLOW);
+        Paint.Style Fill;
         canvas.drawCircle(250,250,250,paint);
 
 }
