@@ -20,7 +20,16 @@ public class MyView extends View {
     double fi0;
     double[] fi = new double[N];
     int t = 0, deltaT = 1;
+    int[] Red = new int[N];
+    int[] Green = new int[N];
+    int[] Blue = new int[N];
+    int[] R = new int[N];
 
+    void fillArrayRandom(int[] a, int min, int max) {
+        for (int i = 0; i < a.length; i++) {
+            a[i] = (int) (Math.random() * (max - min + 1)) + min;
+        }
+    }
     void makePendulum()
     {
         fi0 = pi/4;
@@ -33,6 +42,10 @@ public class MyView extends View {
 
             w[i] = Math.sqrt(g/l[i]);
         }
+        fillArrayRandom(Red, 50, 255);
+        fillArrayRandom(Green, 50, 255);
+        fillArrayRandom(Blue, 50, 255);
+        fillArrayRandom(R, 15, 40);
     }
     void movePendulum()
     {
@@ -62,9 +75,9 @@ public class MyView extends View {
         for (int i = 0; i<N; i++)
         {
             paint.setColor(Color.BLUE);
-            canvas.drawLine((float)x0, (float)y0, (float)(x[i] + x0), (float)(y[i]+ y0), paint);
-            paint.setColor(Color.RED);
-            canvas.drawCircle((float)(x[i] + x0), (float)(y[i] + y0), 20, paint);
+            canvas.drawLine((float)x0, (float)y0, (float)(x[i] + x0), (float)(y[i]+ y0+R[i]), paint);
+            paint.setColor(Color.argb(200, Red[i], Green[i], Blue[i]));
+            canvas.drawCircle((float)(x[i] + x0), (float)(y[i] + y0), R[i], paint);
         }
     }
 
