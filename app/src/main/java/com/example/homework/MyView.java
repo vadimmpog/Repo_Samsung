@@ -5,98 +5,89 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.os.CountDownTimer;
 import android.view.View;
 
-import static java.lang.Math.abs;
-import static java.lang.Math.sin;
 
 public class MyView extends View {
-    double y=0;
-    public MyView(Context context) {
-        super(context);
+    int N = 10;
+    int[] x = new int[N];
+    int[] y = new int[N];
+    int[] vx = new int[N];
+    int[] vy = new int[N];
+    int[] L = new int[N];
+    int[] Red = new int[N];
+    int[] Green = new int[N];
+    int[] Blue = new int[N];
+    int[] R = new int[N];
+    int z = -1;
+    double a = 0, ha = Math.PI / 180;
 
+    void fillArrayRandom(int[] a, int min, int max) {
+        for (int i = 0; i < a.length; i++) {
+            a[i] = (int) (Math.random() * (max - min + 1)) + min;
+        }
     }
+    void makeBalls() {
+        fillArrayRandom(x, 50, 250);
+        fillArrayRandom(y, 50, 250);
+        fillArrayRandom(vx, -50, 100);
+        fillArrayRandom(vy, -50, 100);
+        fillArrayRandom(L, 3, 10);
+        fillArrayRandom(Red, 50, 255);
+        fillArrayRandom(Green, 50, 255);
+        fillArrayRandom(Blue, 50, 255);
+        fillArrayRandom(R, 20, 40);
+    }
+
+    void moveBalls() {
+        for (int i = 0; i < N; i++) {
+            if (i % 2 == 0) {
+                x[i] = this.getWidth() / 2 + (int) (L[i] * vx[i] * Math.cos(a));
+                y[i] = this.getHeight() / 2 + (int) (z * L[i] * vy[i] * Math.sin(a));
+            } else {
+                x[i] = this.getWidth() / 2 + (int) (L[i] * vx[i] * Math.cos(a));
+                y[i] = this.getHeight() / 2 + (int) (L[i] * vy[i] * Math.sin(a));
+            }
+        }
+        a = a + ha;
+    }
+
+    MyView(Context context) {
+        super(context);
+        makeBalls();
+        MyTimer timer = new MyTimer();
+        timer.start();
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
         Paint paint = new Paint();
-        paint.setColor(Color.BLACK);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(5);
-        paint.setTextSize(30.0f);
-        canvas.drawLine(0,canvas.getHeight()/2,canvas.getWidth(),canvas.getHeight()/2,paint);
-        canvas.drawLine(canvas.getWidth()/2,0,canvas.getWidth()/2,canvas.getHeight(),paint);
-        canvas.drawText("Y",canvas.getWidth()/2+15,30,paint);
-        canvas.drawText("X",canvas.getWidth()-30,canvas.getHeight()/2-15,paint);
-
-        Path path1 = new Path();
-        boolean first=true;
-        paint.setColor(Color.BLUE);
-        for(double x=-2 * Math.PI;x<2 * Math.PI;x+=0.1){
-            y=Math.pow(x,2);
-
-            if (first) {
-                path1.moveTo( (float)(getWidth()/2+x*100), (float)(getHeight()/2-y*100));
-                first = false;
-            } else {
-                path1.lineTo((float)(getWidth()/2+x*100), (float)(getHeight()/2-y*100));
-            }
-            canvas.drawPath(path1, paint);
-        }
-        Path path2 = new Path();
-        paint.setColor(Color.RED);
-        first=true;
-        for(double x=-2 * Math.PI;x<2 * Math.PI;x+=0.1){
-            y=Math.abs(x);
-
-            if (first) {
-                path2.moveTo( (float)(getWidth()/2+x*100), (float)(getHeight()/2-y*100));
-                first = false;
-            } else {
-                path2.lineTo((float)(getWidth()/2+x*100), (float)(getHeight()/2-y*100));
-            }
-            canvas.drawPath(path2, paint);
-        }
-        Path path3 = new Path();
-        paint.setColor(Color.GREEN);
-        first=true;
-        for(double x=-1.5;x<1.6;x+=0.1){
-            y=Math.tan(x);
-
-            if (first) {
-                path3.moveTo( (float)(getWidth()/2+x*100), (float)(getHeight()/2-y*100));
-                first = false;
-            } else {
-                path3.lineTo((float)(getWidth()/2+x*100), (float)(getHeight()/2-y*100));
-            }
-            canvas.drawPath(path3, paint);
-        }
-        Path path4 = new Path();
-        first=true;
         paint.setColor(Color.YELLOW);
-        for(double x=-2 * Math.PI;x<2 * Math.PI;x+=0.1){
-            y=3-Math.pow(x,2);
-
-            if (first) {
-                path4.moveTo( (float)(getWidth()/2+x*100), (float)(getHeight()/2-y*100));
-                first = false;
-            } else {
-                path4.lineTo((float)(getWidth()/2+x*100), (float)(getHeight()/2-y*100));
-            }
-            canvas.drawPath(path4, paint);
+        canvas.drawCircle(this.getWidth() / 2, this.getHeight() / 2, 70, paint);
+        paint.setStyle(Paint.Style.FILL);
+        for (int i = 0; i < N; i++) {
+            paint.setColor(Color.argb(200, Red[i], Green[i], Blue[i]));
+            canvas.drawCircle(x[i], y[i], R[i], paint);
+            paint.setTextSize(30.0f);
+            paint.setColor(Color.BLACK);
+            canvas.drawText("P " + i + " (" + x[i] + ", " + y[i] + ")", x[i] + 10, y[i] - 15, paint);
         }
-        Path path5 = new Path();
-        first=true;
-        paint.setColor(Color.BLACK);
-        for(double x=-2 * Math.PI;x<2 * Math.PI;x+=0.1){
-            y=sin(x);
-            if (first) {
-                path5.moveTo( (float)(getWidth()/2+x*100), (float)(getHeight()/2-y*100));
-                first = false;
-            } else {
-                path5.lineTo((float)(getWidth()/2+x*100), (float)(getHeight()/2-y*300));
-            }
-            canvas.drawPath(path5, paint);
+    }
+    void nextFrame() {
+        moveBalls();
+        invalidate();
+    }
+    class MyTimer extends CountDownTimer {
+        MyTimer() {
+            super(1000000, 1);
+        }
+        @Override
+        public void onTick(long millisUntilFinished) {
+            nextFrame();
+        }
+        @Override
+        public void onFinish() {
         }
     }
 }
