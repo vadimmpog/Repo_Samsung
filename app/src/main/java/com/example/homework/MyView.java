@@ -10,7 +10,7 @@ import android.view.View;
 
 
 public class MyView extends View {
-    int N = 5;
+    int N = 10;
     int[] x = new int[N];
     int[] y = new int[N];
     int[] vx = new int[N];
