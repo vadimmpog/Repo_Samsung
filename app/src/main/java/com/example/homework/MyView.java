@@ -41,14 +41,7 @@ public class MyView extends View {
         }
     }
 
-    @SuppressLint("DrawAllocation")
-    public MyView(Context context) {
-        super(context);
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+    void drawBalls(Canvas canvas) {
         Paint paint = new Paint();
         if (!started) {
             fillRandom(x, 300, 900);
@@ -69,14 +62,24 @@ public class MyView extends View {
             if (x[i] - R[i] < 0 || x[i] + R[i] > this.getWidth()) {
                 vx[i] = -vx[i];
             }
-        if (y[i] - R[i] < 0 || y[i] + R[i] > this.getHeight()) {
-            vy[i] = -vy[i];
-        }
-        if (x[i] < 0 || x[i] > this.getHeight()) {
+            if (y[i] - R[i] < 0 || y[i] + R[i] > this.getHeight()) {
+                vy[i] = -vy[i];
+            }
+            if (x[i] < 0 || x[i] > this.getHeight()) {
                 vx[i] = rand(-5, 5);
                 vy[i] = rand(-5, 5);
             }
+        }
     }
+
+    @SuppressLint("DrawAllocation")
+    public MyView(Context context) {
+        super(context);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        drawBalls(canvas);
         add(x, vx);
         add(y, vy);
         invalidate();
