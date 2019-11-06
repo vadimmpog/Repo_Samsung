@@ -1,39 +1,56 @@
 package com.example.homework;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.os.CountDownTimer;
 import android.view.View;
 
 
 public class MyView extends View {
-    int N = 30;
-    float[] x = new float[N];
-    float[] y = new float[N];
-    float[] vx = new float[N];
-    float[] vy = new float[N];
-    int[] Red = new int[N];
-    int[] Green = new int[N];
-    float[] R = new float[N];
-    int[] Blue = new int[N];
-    boolean started;
-    void colorballs(){
-        for (int i = 0; i < N; i++) {
-            Green[i] = (int) (Math.random() * 206 + 50);
-            Red[i] = (int) (Math.random() * 206 + 50);
-            Blue[i] = (int) (Math.random() * 206 + 50);
-            R[i] = (float) (Math.random() * 80 + 30);
 
+    int N = 15;
+    int[] l = new int [N];
+    double x0, y0;
+    double[] x = new double [N];
+    double[] y = new double [N];
+    double g = 9.832f, pi = Math.PI;
+    double[] w = new double[N];
+    double fi0;
+    double[] fi = new double[N];
+    int t = 0, deltaT = 1;
+
+    void makePendulum()
+    {
+        fi0 = pi/4;
+
+        int l_min = 100;
+        for (int i = 0; i<N; i++)
+        {
+            l[i] = l_min;
+            l_min += 50;
+
+            w[i] = Math.sqrt(g/l[i]);
         }
     }
-    @SuppressLint("DrawAllocation")
+    void movePendulum()
+    {
+        t += deltaT;
+
+        for (int i = 0; i<N; i++)
+        {
+            fi[i] = fi0 * Math.cos(w[i] * t);
+            x[i] = l[i]*Math.sin(fi[i]);
+            y[i] = l[i]*Math.cos(fi[i]);
+        }
+    }
+
     public MyView(Context context) {
         super(context);
-        colorballs();
+        makePendulum();
+        MyTimer timer = new MyTimer();
+        timer.start();
     }
     void makeBalls() {
         fillArrayRandom(x, 50, 250);
@@ -69,36 +86,38 @@ public class MyView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        x0 = getWidth()/2;
+        y0 = getHeight()/4;
         Paint paint = new Paint();
-        if (!started){
-            for (int i = 0; i < N; i++){
-                x[i] = (float)(Math.random() * (getWidth()-200)+160);
-                y[i] = (float)(Math.random() * (getHeight()-200)+160);
-                vx[i] = (float)(Math.random() * 8 + 2);
-                vy[i] = (float)(Math.random() * 8 + 2);
+        canvas.drawCircle((float) x0, (float) y0, 10, paint);
+        for (int i = 0; i<N; i++)
+        {
+            paint.setColor(Color.BLACK);
+            canvas.drawLine((float)x0, (float)y0, (float)(x[i] + x0), (float)(y[i]+ y0), paint);
+            paint.setColor(Color.BLUE);
+            canvas.drawCircle((float)(x[i] + x0), (float)(y[i] + y0), 20, paint);
+        }
+    }
 
-            }
-            started = true;
-        }
-        for (int i = 0; i < N; i++) {
-            paint.setColor(Color.argb(200,Red[i],Green[i],Blue[i]));
-            canvas.drawCircle(x[i], y[i], R[i], paint);
-        }
-        for (int i = 0; i < N; i++) {
-            if (x[i]-R[i] < 0 || x[i]+R[i] > this.getWidth()) {
-                vx[i] = -vx[i];
-            }
-            if (y[i]-R[i] < 0 || y[i]+R[i] > this.getHeight()) {
-                vy[i] = -vy[i];
-            }
-            if (x[i] < 0 || x[i] > this.getHeight()) {
-                vx[i] = (float) (Math.random() * 8 + 2);
-                vy[i] = (float) (Math.random() * 8 + 2);
-            }
-            x[i] += vx[i];
-            y[i] += vy[i];
-        }
+    void nextFrame()
+    {
+        movePendulum();
         invalidate();
+    }
+
+    class MyTimer extends CountDownTimer
+    {
+        MyTimer()
+        {
+            super(100000, 100);
+        }
+        @Override
+        public void onTick(long millisUntilFinished) {
+            nextFrame();
+        }
+        @Override
+        public void onFinish() {
+        }
     }
     class MyTimer extends CountDownTimer {
         MyTimer() {
