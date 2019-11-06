@@ -9,48 +9,31 @@ import android.view.View;
 
 
 public class MyView extends View {
+    int N = 30;
+    float[] x = new float[N];
+    float[] y = new float[N];
+    float[] vx = new float[N];
+    float[] vy = new float[N];
+    int[] Red = new int[N];
+    int[] Green = new int[N];
+    float[] R = new float[N];
+    int[] Blue = new int[N];
+    boolean started;
 
-    int N = 15;
-    int[] l = new int [N];
-    double x0, y0;
-    double[] x = new double [N];
-    double[] y = new double [N];
-    double g = 9.832f, pi = Math.PI;
-    double[] w = new double[N];
-    double fi0;
-    double[] fi = new double[N];
-    int t = 0, deltaT = 1;
-
-    void makePendulum()
-    {
-        fi0 = pi/4;
-
-        int l_min = 100;
-        for (int i = 0; i<N; i++)
-        {
-            l[i] = l_min;
-            l_min += 50;
-
-            w[i] = Math.sqrt(g/l[i]);
-        }
+    float rand(float min, float max) {
+        return (float) (Math.random() * (max - min + 1)) + min;
     }
-    void movePendulum()
-    {
-        t += deltaT;
 
-        for (int i = 0; i<N; i++)
-        {
-            fi[i] = fi0 * Math.cos(w[i] * t);
-            x[i] = l[i]*Math.sin(fi[i]);
-            y[i] = l[i]*Math.cos(fi[i]);
+    void fillRandom(float[] array, float min, float max) {
+        for (int i = 0; i < array.length; i++) {
+            array[i] = rand(min, max);
         }
     }
 
-    public MyView(Context context) {
-        super(context);
-        makePendulum();
-        MyTimer timer = new MyTimer();
-        timer.start();
+    void fillRandomint(int[] array, float min, float max) {
+        for (int i = 0; i < array.length; i++) {
+            array[i] = (int) rand(min, max);
+        }
     }
     void makeBalls() {
         fillArrayRandom(x, 50, 250);
@@ -64,60 +47,54 @@ public class MyView extends View {
         fillArrayRandom(R, 20, 40);
     }
 
-    void moveBalls() {
-        for (int i = 0; i < N; i++) {
-            if (i % 2 == 0) {
-                x[i] = this.getWidth() / 2 + (int) (L[i] * vx[i] * Math.cos(a));
-                y[i] = this.getHeight() / 2 + (int) (z * L[i] * vy[i] * Math.sin(a));
-            } else {
-                x[i] = this.getWidth() / 2 + (int) (L[i] * vx[i] * Math.cos(a));
-                y[i] = this.getHeight() / 2 + (int) (L[i] * vy[i] * Math.sin(a));
-            }
+    void add(float[] array, float[] values) {
+        for (int i = 0; i < array.length; i++) {
+            array[i] += values[i];
         }
-        a = a + ha;
     }
 
-    MyView(Context context) {
+    void drawBalls(Canvas canvas) {
+        Paint paint = new Paint();
+        if (!started) {
+            fillRandom(x, 300, 900);
+            fillRandom(y, 300, 900);
+            fillRandom(vx, -5, 5);
+            fillRandom(vy, -5, 5);
+            fillRandomint(Green, 0, 255);
+            fillRandomint(Blue, 0, 255);
+            fillRandomint(Red, 0, 255);
+            fillRandom(R, 30, 120);
+            started = true;
+        }
+        for (int i = 0; i < N; i++) {
+            paint.setColor(Color.argb(200, Red[i], Green[i], Blue[i]));
+            canvas.drawCircle(x[i], y[i], R[i], paint);
+        }
+        for (int i = 0; i < N; i++){
+            if (x[i] - R[i] < 0 || x[i] + R[i] > this.getWidth()) {
+                vx[i] = -vx[i];
+            }
+            if (y[i] - R[i] < 0 || y[i] + R[i] > this.getHeight()) {
+                vy[i] = -vy[i];
+            }
+            if (x[i] < 0 || x[i] > this.getHeight()) {
+                vx[i] = rand(-5, 5);
+                vy[i] = rand(-5, 5);
+            }
+        }
+    }
+
+    @SuppressLint("DrawAllocation")
+    public MyView(Context context) {
         super(context);
-        makeBalls();
-        MyTimer timer = new MyTimer();
-        timer.start();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        x0 = getWidth()/2;
-        y0 = getHeight()/4;
-        Paint paint = new Paint();
-        canvas.drawCircle((float) x0, (float) y0, 10, paint);
-        for (int i = 0; i<N; i++)
-        {
-            paint.setColor(Color.BLACK);
-            canvas.drawLine((float)x0, (float)y0, (float)(x[i] + x0), (float)(y[i]+ y0), paint);
-            paint.setColor(Color.BLUE);
-            canvas.drawCircle((float)(x[i] + x0), (float)(y[i] + y0), 20, paint);
-        }
-    }
-
-    void nextFrame()
-    {
-        movePendulum();
+        drawBalls(canvas);
+        add(x, vx);
+        add(y, vy);
         invalidate();
-    }
-
-    class MyTimer extends CountDownTimer
-    {
-        MyTimer()
-        {
-            super(100000, 100);
-        }
-        @Override
-        public void onTick(long millisUntilFinished) {
-            nextFrame();
-        }
-        @Override
-        public void onFinish() {
-        }
     }
     class MyTimer extends CountDownTimer {
         MyTimer() {
