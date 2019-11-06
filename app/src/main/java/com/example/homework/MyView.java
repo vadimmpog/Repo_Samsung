@@ -18,53 +18,67 @@ public class MyView extends View {
     float[] R = new float[N];
     int[] Blue = new int[N];
     boolean started;
-    void colorballs(){
-        for (int i = 0; i < N; i++) {
-            Green[i] = (int) (Math.random() * 206 + 50);
-            Red[i] = (int) (Math.random() * 206 + 50);
-            Blue[i] = (int) (Math.random() * 206 + 50);
-            R[i] = (float) (Math.random() * 80 + 30);
 
+    float rand(float min, float max) {
+        return (float) (Math.random() * (max - min + 1)) + min;
+    }
+
+    void fillRandom(float[] array, float min, float max) {
+        for (int i = 0; i < array.length; i++) {
+            array[i] = rand(min, max);
         }
     }
+
+    void fillRandomint(int[] array, float min, float max) {
+        for (int i = 0; i < array.length; i++) {
+            array[i] = (int) rand(min, max);
+        }
+    }
+
+    void add(float[] array, float[] values) {
+        for (int i = 0; i < array.length; i++) {
+            array[i] += values[i];
+        }
+    }
+
     @SuppressLint("DrawAllocation")
     public MyView(Context context) {
         super(context);
-        colorballs();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         Paint paint = new Paint();
-        if (!started){
-            for (int i = 0; i < N; i++){
-                x[i] = (float)(Math.random() * (getWidth()-200)+160);
-                y[i] = (float)(Math.random() * (getHeight()-200)+160);
-                vx[i] = (float)(Math.random() * 8 + 2);
-                vy[i] = (float)(Math.random() * 8 + 2);
-
-            }
+        if (!started) {
+            fillRandom(x, 300, 900);
+            fillRandom(y, 300, 900);
+            fillRandom(vx, -5, 5);
+            fillRandom(vy, -5, 5);
+            fillRandomint(Green, 0, 255);
+            fillRandomint(Blue, 0, 255);
+            fillRandomint(Red, 0, 255);
+            fillRandom(R, 30, 120);
             started = true;
         }
         for (int i = 0; i < N; i++) {
-            paint.setColor(Color.argb(200,Red[i],Green[i],Blue[i]));
+            paint.setColor(Color.argb(200, Red[i], Green[i], Blue[i]));
             canvas.drawCircle(x[i], y[i], R[i], paint);
         }
-        for (int i = 0; i < N; i++) {
-            if (x[i]-R[i] < 0 || x[i]+R[i] > this.getWidth()) {
+        for (int i = 0; i < N; i++){
+            if (x[i] - R[i] < 0 || x[i] + R[i] > this.getWidth()) {
                 vx[i] = -vx[i];
             }
-            if (y[i]-R[i] < 0 || y[i]+R[i] > this.getHeight()) {
-                vy[i] = -vy[i];
-            }
-            if (x[i] < 0 || x[i] > this.getHeight()) {
-                vx[i] = (float) (Math.random() * 8 + 2);
-                vy[i] = (float) (Math.random() * 8 + 2);
-            }
-            x[i] += vx[i];
-            y[i] += vy[i];
+        if (y[i] - R[i] < 0 || y[i] + R[i] > this.getHeight()) {
+            vy[i] = -vy[i];
         }
+        if (x[i] < 0 || x[i] > this.getHeight()) {
+                vx[i] = rand(-5, 5);
+                vy[i] = rand(-5, 5);
+            }
+    }
+        add(x, vx);
+        add(y, vy);
         invalidate();
     }
 }
