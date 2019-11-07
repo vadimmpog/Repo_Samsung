@@ -3,6 +3,7 @@ package ru.samsung.itschool.book.cells;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
@@ -12,6 +13,9 @@ import android.view.View.OnLongClickListener;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.Toast;
+
+import static android.graphics.Color.BLACK;
+import static android.graphics.Color.WHITE;
 
 
 public class CellsActivity extends Activity implements OnClickListener,
@@ -38,6 +42,7 @@ public class CellsActivity extends Activity implements OnClickListener,
         for (int i = 0; i < HEIGHT; i++){
             for (int j = 0; j < WIDTH; j++) {
                 cells[i][j].setText(num + "");
+                if(Math.random()>0.5) cells[j][i].setBackgroundColor(BLACK);
             }
             num++;
         }
@@ -46,8 +51,8 @@ public class CellsActivity extends Activity implements OnClickListener,
 
     @Override
     public boolean onLongClick(View v) {
-        Toast.makeText(this, "Think better!", Toast.LENGTH_LONG).show();
-        return true;
+
+        return false;
     }
 
     @Override
@@ -61,14 +66,31 @@ public class CellsActivity extends Activity implements OnClickListener,
 
         for (int x = 0; x < WIDTH; x++)
         {
-            cells[tappedY][x].setBackgroundColor(Color.RED);
+            int color = ((ColorDrawable)cells[tappedY][x].getBackground()).getColor();
+            if(color==BLACK){
+                cells[tappedY][x].setBackgroundColor(WHITE);
+            }
+            else{
+                cells[tappedY][x].setBackgroundColor(BLACK);
+            }
+
+
         }
-        for (int y = 0; y < WIDTH; y++)
-        {
-            cells[y][tappedX].setBackgroundColor(Color.RED);
+        for (int y = 0; y < WIDTH; y++) {
+            if(y!=tappedY){
+                int color = ((ColorDrawable)cells[y][tappedX].getBackground()).getColor();
+                if (color == BLACK) {
+                    cells[y][tappedX].setBackgroundColor(WHITE);
+                }
+                else{
+                    cells[y][tappedX].setBackgroundColor(BLACK);
+                }
+            }
+
         }
 
     }
+
 
 
     int getX(View v) {
