@@ -11,6 +11,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.Button;
 import android.widget.GridLayout;
+import android.widget.Toast;
 
 
 public class CellsActivity extends Activity implements OnClickListener,
@@ -33,32 +34,28 @@ public class CellsActivity extends Activity implements OnClickListener,
 
     void generate() {
 
-        int num = 1;
-        for (int j = 0; j < HEIGHT; j++)
-            for (int i = 0; i < WIDTH; i++) {
+        int num = 0;
+        for (int i = 0; i < HEIGHT; i++){
+            for (int j = 0; j < WIDTH; j++) {
                 cells[i][j].setText(num + "");
-                num++;
-                if (Math.random() >= 0.5)
-                {
-                    cells[i][j].setBackgroundColor(Color.YELLOW);
-                }
             }
+            num++;
+        }
+
     }
 
     @Override
     public boolean onLongClick(View v) {
-        //"Добавьте код в функцию активности onLongClick() - реакцию на долгое нажатие на клетку
-        return false;
+        Toast.makeText(this, "Think better!", Toast.LENGTH_LONG).show();
+        return true;
     }
 
     @Override
     public void onClick(View v) {
 
-        //Добавьте код в функцию активности onClick() - реакцию на нажатие на клетку
 
         Button tappedCell = (Button) v;
 
-        //Получаем координтаты нажатой клетки
         int tappedX = getX(tappedCell);
         int tappedY = getY(tappedCell);
 
