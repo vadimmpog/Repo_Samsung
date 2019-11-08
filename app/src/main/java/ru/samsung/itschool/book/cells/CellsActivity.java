@@ -21,17 +21,17 @@ import static android.graphics.Color.WHITE;
 public class CellsActivity extends Activity implements OnClickListener,
         OnLongClickListener {
 
-    private int WIDTH = 10;
-    private int HEIGHT = 10;
+    private int WIDTH = 13;
+    private int HEIGHT = 9;
 
     private Button[][] cells;
+    private int[][] bomb= new int[9][13];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cells);
         makeCells();
-
         generate();
 
     }
@@ -41,10 +41,9 @@ public class CellsActivity extends Activity implements OnClickListener,
         int num = 0;
         for (int i = 0; i < HEIGHT; i++){
             for (int j = 0; j < WIDTH; j++) {
-                cells[i][j].setText(num + "");
-                if(Math.random()>0.5) cells[j][i].setBackgroundColor(BLACK);
+                if (Math.random() > 0.8) bomb[i][j] = 1;
+                else bomb[i][j] = 0;
             }
-            num++;
         }
 
     }
@@ -63,31 +62,11 @@ public class CellsActivity extends Activity implements OnClickListener,
 
         int tappedX = getX(tappedCell);
         int tappedY = getY(tappedCell);
+        if(bomb[tappedX][tappedY]==1){
 
-        for (int x = 0; x < WIDTH; x++)
-        {
-            int color = ((ColorDrawable)cells[tappedY][x].getBackground()).getColor();
-            if(color==BLACK){
-                cells[tappedY][x].setBackgroundColor(WHITE);
-            }
-            else{
-                cells[tappedY][x].setBackgroundColor(BLACK);
-            }
-
-
+            generate();
         }
-        for (int y = 0; y < WIDTH; y++) {
-            if(y!=tappedY){
-                int color = ((ColorDrawable)cells[y][tappedX].getBackground()).getColor();
-                if (color == BLACK) {
-                    cells[y][tappedX].setBackgroundColor(WHITE);
-                }
-                else{
-                    cells[y][tappedX].setBackgroundColor(BLACK);
-                }
-            }
 
-        }
 
     }
 
