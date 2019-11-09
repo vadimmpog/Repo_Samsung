@@ -21,12 +21,48 @@ import static android.graphics.Color.WHITE;
 public class CellsActivity extends Activity implements OnClickListener,
         OnLongClickListener {
 
-    private int WIDTH = 13;
-    private int HEIGHT = 9;
+    private int WIDTH = 9;
+    private int HEIGHT = 13;
 
     private Button[][] cells;
-    private int[][] bomb= new int[9][13];
+    private int[][] bomb= new int[13][9],flag=new int[13][9];
 
+    public void req(int y, int x){
+        if(flag[y][x]==0&&bomb[y][x]==0&&x<8){
+                flag[y][x]=1;
+                int k=0;
+                if(x-1>=0){
+                    if(bomb[y][x-1]==1) k++;
+                }
+                if(x-1>=0){
+                    if(bomb[y+1][x-1]==1) k++;
+                }
+                if(y+1<HEIGHT){
+                    if(bomb[y+1][x]==1) k++;
+                }
+                if(x+1<WIDTH&&y+1<HEIGHT) {
+                    if (bomb[y + 1][x + 1] == 1) k++;
+                }
+                if(x+1<WIDTH){
+                    if(bomb[y][x+1]==1) k++;
+                }
+                if(y-1>=0&&x+1<WIDTH){
+                    if(bomb[y-1][x+1]==1) k++;
+                }
+                if(x-1>=0&&y-1>=0){
+                    if(bomb[y-1][x-1]==1) k++;
+                }
+                if(y-1>=0){
+                    if(bomb[y-1][x]==1) k++;
+                }
+                if(k!=0) cells[y][x].setText(k+"");
+                cells[y][x].setBackgroundColor(0xFF505050);
+                //req(y+1,x);
+                req(y,x+1);
+           /* req(y-1,x);
+            req(y,x-1);*/
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,11 +74,11 @@ public class CellsActivity extends Activity implements OnClickListener,
 
     void generate() {
 
-        int num = 0;
         for (int i = 0; i < HEIGHT; i++){
             for (int j = 0; j < WIDTH; j++) {
-                if (Math.random() > 0.8) bomb[i][j] = 1;
+                if (Math.random() > 0.8) {bomb[i][j] = 1;cells[i][j].setBackgroundColor(BLACK);}
                 else bomb[i][j] = 0;
+                flag[i][j]=0;
             }
         }
 
@@ -50,7 +86,12 @@ public class CellsActivity extends Activity implements OnClickListener,
 
     @Override
     public boolean onLongClick(View v) {
+        Button tappedCell = (Button) v;
 
+        int tappedX = getX(tappedCell);
+        int tappedY = getY(tappedCell);
+        bomb[tappedY][tappedX]=2;
+        cells[tappedY][tappedX].setText("¤");
         return false;
     }
 
@@ -62,9 +103,16 @@ public class CellsActivity extends Activity implements OnClickListener,
 
         int tappedX = getX(tappedCell);
         int tappedY = getY(tappedCell);
-        if(bomb[tappedX][tappedY]==1){
+        if(bomb[tappedY][tappedX]==1){
+            cells[tappedY][tappedX].setBackgroundColor(Color.RED);
+            cells[tappedY][tappedX].setText("*");
+            //generate();
+        }
+        else{
+            if(bomb[tappedY][tappedX]==0){
+                req(tappedY,tappedX);
+            }
 
-            generate();
         }
 
 
@@ -82,9 +130,9 @@ public class CellsActivity extends Activity implements OnClickListener,
 
     void makeCells() {
         cells = new Button[HEIGHT][WIDTH];
-        GridLayout cellsLayout = (GridLayout) findViewById(R.id.CellsLayout);
+        GridLayout cellsLayout = (GridLayout)findViewById(R.id.CellsLayout);
         cellsLayout.removeAllViews();
-        cellsLayout.setColumnCount(HEIGHT);
+        cellsLayout.setColumnCount(WIDTH);
         for (int i = 0; i < HEIGHT; i++)
             for (int j = 0; j < WIDTH; j++) {
                 LayoutInflater inflater = (LayoutInflater) getApplicationContext()
