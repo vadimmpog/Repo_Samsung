@@ -81,7 +81,7 @@ public class CellsActivity extends Activity implements OnClickListener,
 
         for (int i = 0; i < HEIGHT; i++){
             for (int j = 0; j < WIDTH; j++) {
-                if (Math.random() > 0.8) bomb[i][j] = 1;
+                if (Math.random() > 0.85) bomb[i][j] = 1;
                 else bomb[i][j] = 0;
                 flag[i][j]=0;
             }
@@ -95,7 +95,7 @@ public class CellsActivity extends Activity implements OnClickListener,
         Button tappedCell = (Button) v;
         int tappedX = getX(tappedCell);
         int tappedY = getY(tappedCell);
-        //bomb[tappedY][tappedX]=1;
+        //bomb[tappedY][tappedX]=3;
         cells[tappedY][tappedX].setText("¤");
         for (int i = 0; i < HEIGHT; i++)
             for (int j = 0; j < WIDTH; j++)
@@ -116,7 +116,7 @@ public class CellsActivity extends Activity implements OnClickListener,
 
         int tappedX = getX(tappedCell);
         int tappedY = getY(tappedCell);
-        if(bomb[tappedY][tappedX]==1){
+        if(bomb[tappedY][tappedX]%2==1){
             cells[tappedY][tappedX].setBackgroundColor(Color.RED);
             cells[tappedY][tappedX].setText("*");
             //generate();
