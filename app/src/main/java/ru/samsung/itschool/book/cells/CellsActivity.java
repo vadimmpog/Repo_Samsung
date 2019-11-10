@@ -4,24 +4,27 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.Button;
 import android.widget.GridLayout;
-import static android.graphics.Color.BLACK;
+import android.widget.Toast;
 
-
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class CellsActivity extends Activity implements OnClickListener,
         OnLongClickListener {
 
     private int WIDTH = 9;
     private int HEIGHT = 13;
-
+    private Toast toast;
     private Button[][] cells;
-    private int[][] bomb= new int[13][9],flag=new int[13][9];
+    private int[][] bomb= new int[13][9],flag=new int[13][9],check=new int[13][9];
 
     public void req(int y, int x){
         if((y>=0&&y<HEIGHT)&&(x>=0&&x<WIDTH)){
@@ -68,7 +71,7 @@ public class CellsActivity extends Activity implements OnClickListener,
         }
 
     }
-    @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cells);
@@ -81,9 +84,17 @@ public class CellsActivity extends Activity implements OnClickListener,
 
         for (int i = 0; i < HEIGHT; i++){
             for (int j = 0; j < WIDTH; j++) {
-                if (Math.random() > 0.85) bomb[i][j] = 1;
-                else bomb[i][j] = 0;
+                if (Math.random() > 0.85){
+                    bomb[i][j] = 1;
+                    check[i][j]=1;
+                }
+                else{
+                    check[i][j]=0;
+                    bomb[i][j] = 0;
+                }
                 flag[i][j]=0;
+                cells[i][j].setBackgroundColor(0xFF808080);
+                cells[i][j].setText("");
             }
         }
 
@@ -95,38 +106,65 @@ public class CellsActivity extends Activity implements OnClickListener,
         Button tappedCell = (Button) v;
         int tappedX = getX(tappedCell);
         int tappedY = getY(tappedCell);
-        //bomb[tappedY][tappedX]=3;
-        cells[tappedY][tappedX].setText("¤");
-        for (int i = 0; i < HEIGHT; i++)
-            for (int j = 0; j < WIDTH; j++)
-                if(bomb[i][j]==1){
-                    f=1;
-                }
-        if(f==0){
-            //выигрыш
+        if(check[tappedY][tappedX]==2){
+            cells[tappedY][tappedX].setText("");
+            if(bomb[tappedY][tappedX]==1) check[tappedY][tappedX]=1;
+            else check[tappedY][tappedX]=0;
+        }
+        else{
+            check[tappedY][tappedX]=2;
+            cells[tappedY][tappedX].setText("¤");
+            for (int i = 0; i < HEIGHT; i++)
+                for (int j = 0; j < WIDTH; j++)
+                    if(check[i][j]==1){
+                        f=1;
+                        break;
+                    }
+            if(f==0){
+                toast=Toast.makeText(getApplicationContext(),"Вы выиграли!",Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER,0,0);
+                toast.show();
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        generate();
+                    }
+                }, 3000);
+            }
         }
         return false;
     }
 
     @Override
     public void onClick(View v) {
-
-
         Button tappedCell = (Button) v;
-
         int tappedX = getX(tappedCell);
         int tappedY = getY(tappedCell);
-        if(bomb[tappedY][tappedX]%2==1){
-            cells[tappedY][tappedX].setBackgroundColor(Color.RED);
-            cells[tappedY][tappedX].setText("*");
-            //generate();
-        }
-        else{
-            if(bomb[tappedY][tappedX]==0){
-                req(tappedY,tappedX);
-            }
+        if(check[tappedY][tappedX]!=2){
+            if(bomb[tappedY][tappedX]%2==1){
+                cells[tappedY][tappedX].setBackgroundColor(Color.RED);
+                cells[tappedY][tappedX].setText("*");
+                toast=Toast.makeText(getApplicationContext(),"Вы проиграли!",Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER,0,0);
+                toast.show();
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        generate();
+                    }
+                }, 3000);
 
+            }
+            else{
+                if(bomb[tappedY][tappedX]==0){
+                    req(tappedY,tappedX);
+                }
+
+            }
         }
+
 
 
     }
