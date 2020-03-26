@@ -2,82 +2,61 @@ package com.example.myapplication;
 
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
+    private DBBets db;
+    BetAdapter adapter;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        MyCompanyAdapter adapter = new MyCompanyAdapter(this, makeCompanies());
+        db = new DBBets(this);
+
+        adapter = new BetAdapter(this, db.selectAll());
         ListView listView = findViewById(R.id.listView);
         listView.setAdapter(adapter);
-    }
 
-    MyCompany[] makeCompanies(){
-        MyCompany[] arr = new MyCompany[13];
+        findViewById(R.id.butSave).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int id = db.getLastId() + 1;
+                String teamHome = ((TextView)findViewById(R.id.TeamHome)).getText().toString();
+                String teamGuest = ((TextView)findViewById(R.id.TeamGuest)).getText().toString();
+                float betHome = Float.parseFloat(((TextView)findViewById(R.id.BetHome))
+                        .getText().toString());
+                float betGuest = Float.parseFloat(((TextView)findViewById(R.id.BetGuest))
+                        .getText().toString());
+                float betDraw = Float.parseFloat(((TextView)findViewById(R.id.BetDraw))
+                        .getText().toString());
 
-        String[] names = {
-                "Blizzard",
-                "Sony",
-                "Samsung",
-                "IBM",
-                "Microsoft",
-                "Сбребанк",
-                "Oracle",
-                "Apple",
-                "Facebook",
-                "Valve",
-                "Electronic Arts",
-                "Яндекс",
-                "Google"
+                Bet bet = new Bet(id, teamHome, teamGuest, betHome, betDraw, betGuest);
 
-        };
+                db.insert(bet);
 
-        int[] pictures = {
-                R.drawable.blizzard,
-                R.drawable.sony,
-                R.drawable.samsung,
-                R.drawable.ibm,
-                R.drawable.microsoft,
-                R.drawable.sberbank,
-                R.drawable.oracle,
-                R.drawable.apple,
-                R.drawable.facebook,
-                R.drawable.valve,
-                R.drawable.electronic_arts,
-                R.drawable.yandex,
-                R.drawable.google
+                adapter.setBets(db.selectAll());
+                adapter.notifyDataSetChanged();
+            }
+        });
 
-        };
-
-        double[] costs = {
-                87.81,
-                13.94,
-                814.97,
-                1488.07,
-                197.38,
-                127.95,
-                148.83,
-                214.71,
-                97.93,
-                49.94,
-                876.00,
-                123.58,
-                238.90
-        };
-
-        for (int i = 0; i < arr.length; i++){
-            arr[i] = new MyCompany();
-            arr[i].name = names[i];
-            arr[i].picture = pictures[i];
-            arr[i].cost = costs[i];
-        }
-
-        return arr;
+        findViewById(R.id.butCancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((TextView)findViewById(R.id.TeamHome)).setText("");
+                ((TextView)findViewById(R.id.TeamGuest)).setText("");
+                ((TextView)findViewById(R.id.BetHome)).setText("");
+                ((TextView)findViewById(R.id.BetGuest)).setText("");
+                ((TextView)findViewById(R.id.BetDraw)).setText("");
+            }
+        });
     }
 }
