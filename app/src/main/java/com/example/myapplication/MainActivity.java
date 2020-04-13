@@ -1,62 +1,60 @@
 package com.example.myapplication;
 
 
+import android.database.Cursor;
 import android.os.Bundle;
-import android.view.View;
+import android.provider.MediaStore;
 import android.widget.ListView;
-import android.widget.TextView;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.fragment.app.FragmentActivity;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 
-import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
-    private DBBets db;
-    BetAdapter adapter;
+public class MainActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+
+    private SimpleCursorAdapter adapter;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ListView listView = (ListView) findViewById(R.id.imageList);
 
-        db = new DBBets(this);
-
-        adapter = new BetAdapter(this, db.selectAll());
-        ListView listView = findViewById(R.id.listView);
+        adapter = new SimpleCursorAdapter(this, R.layout.my_item, null,
+                new String[] {
+                        MediaStore.Images.Thumbnails.DATA,
+                        MediaStore.Images.Thumbnails.DATA
+                },
+                new int[] {
+                        R.id.imageView,
+                        R.id.textView
+                }, 0);
         listView.setAdapter(adapter);
 
-        findViewById(R.id.butSave).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int id = db.getLastId() + 1;
-                String teamHome = ((TextView)findViewById(R.id.TeamHome)).getText().toString();
-                String teamGuest = ((TextView)findViewById(R.id.TeamGuest)).getText().toString();
-                float betHome = Float.parseFloat(((TextView)findViewById(R.id.BetHome))
-                        .getText().toString());
-                float betGuest = Float.parseFloat(((TextView)findViewById(R.id.BetGuest))
-                        .getText().toString());
-                float betDraw = Float.parseFloat(((TextView)findViewById(R.id.BetDraw))
-                        .getText().toString());
+        getSupportLoaderManager().initLoader(0, null, this);
+    }
 
-                Bet bet = new Bet(id, teamHome, teamGuest, betHome, betDraw, betGuest);
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(this,
+                MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI,
+                new String[] {
+                        MediaStore.Images.Thumbnails._ID,
+                        MediaStore.Images.Thumbnails.DATA
+                }, null, null, null);
+    }
 
-                db.insert(bet);
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        adapter.swapCursor(data);
+    }
 
-                adapter.setBets(db.selectAll());
-                adapter.notifyDataSetChanged();
-            }
-        });
-
-        findViewById(R.id.butCancel).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((TextView)findViewById(R.id.TeamHome)).setText("");
-                ((TextView)findViewById(R.id.TeamGuest)).setText("");
-                ((TextView)findViewById(R.id.BetHome)).setText("");
-                ((TextView)findViewById(R.id.BetGuest)).setText("");
-                ((TextView)findViewById(R.id.BetDraw)).setText("");
-            }
-        });
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter.swapCursor(null);
     }
 }
+
